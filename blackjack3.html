@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Блекджек — 3 игрока</title>
+
+    <link rel="stylesheet" href="style.css">
+
+    <style>
+        .game {
+            display: flex;
+            gap: 60px;
+            justify-content: center;
+            margin-top: 30px;
+        }
+        .player h2 { text-align:center; margin-bottom:10px; }
+        .deck {
+            display:flex;
+            gap:12px;
+            justify-content:center;
+            align-items:center;
+        }
+        .score{
+            margin-top:10px;
+            text-align:center;
+            font-size:1.2em;
+            color:gold;
+        }
+    </style>
+</head>
+
+<body>
+<header>
+    <nav class="nav">
+      <a href="index.html">2 игрока</a>
+      <a href="three.html">3 игрока</a>
+      <a href="four.html">4 игрока</a>
+      <a href="blackjack.html">Блекджек</a>
+      <a href="blackjack3.html">Блекджек 3 игрока</a>
+    </nav>
+</header>
+
+<h1>Блекджек — по две карты для 3 игроков</h1>
+<div style="text-align:center;"><button id="start">Начать игру</button></div>
+
+<div class="game">
+    <div class="player">
+        <h2>Игрок 1</h2>
+        <div class="deck" id="deck1"></div>
+        <div id="score1" class="score"></div>
+    </div>
+
+    <div class="player">
+        <h2>Игрок 2</h2>
+        <div class="deck" id="deck2"></div>
+        <div id="score2" class="score"></div>
+    </div>
+
+    <div class="player">
+        <h2>Игрок 3</h2>
+        <div class="deck" id="deck3"></div>
+        <div id="score3" class="score"></div>
+    </div>
+</div>
+
+<div id="result" style="text-align:center;margin-top:20px;font-size:1.4em;"></div>
+
+<script>
+const suits=[{symbol:'♥',color:'red'},{symbol:'♦',color:'red'},{symbol:'♣',color:'black'},{symbol:'♠',color:'black'}];
+const values=['A','2','3','4','5','6','7','8','9','10','J','Q','K'];
+function randomCard(){const s=suits[Math.floor(Math.random()*suits.length)];const v=values[Math.floor(Math.random()*values.length)];return{value:v,suit:s};}
+function cardValue(v){if(v==='A')return 11; if(['K','Q','J'].includes(v))return 10; return parseInt(v);}    
+
+function clearTable(){ for(let p=1;p<=3;p++){document.getElementById(`deck${p}`).innerHTML="";document.getElementById(`score${p}`).textContent="";} document.getElementById("result").textContent="";}    
+
+function createCardElement(card){
+    const slot=document.createElement("div"); slot.className="card-slot";
+    slot.innerHTML=`<div class="card-inner"><div class="card-face card-back">🂠</div><div class="card-face card-front ${card.suit.color}"><div class="corner top">${card.value}<br>${card.suit.symbol}</div><div class="center">${card.suit.symbol}</div><div class="corner bottom">${card.value}<br>${card.suit.symbol}</div></div></div>`;
+    setTimeout(()=>slot.querySelector('.card-inner').classList.add('flip'),50);
+    return slot;
+}
+
+function deal(){
+    clearTable();
+    let playersCards={1:[],2:[],3:[]};
+
+    for(let p=1;p<=3;p++){
+        for(let i=0;i<2;i++){
+            const c=randomCard();
+            playersCards[p].push(c);
+            document.getElementById(`deck${p}`).appendChild(createCardElement(c));
+        }
+    }
+
+    for(let p=1;p<=3;p++){
+        let sum=playersCards[p].reduce((a,c)=>a+cardValue(c.value),0);
+        document.getElementById(`score${p}`).textContent=`Очки: ${sum}`;
+    }
+
+    let scores=[1,2,3].map(p=>({p,total:playersCards[p].reduce((a,c)=>a+cardValue(c.value),0)}));
+    let max=Math.max(...scores.map(s=>s.total));
+    let winners=scores.filter(s=>s.total===max);
+
+    if(winners.length===1) document.getElementById("result").textContent=`🏆 Победил игрок ${winners[0].p} (${max} очков)`;
+    else document.getElementById("result").textContent=`🤝 Ничья! (${max} очков)`;
+}
+
+document.getElementById("start").onclick=deal;
+</script>
+
+</body>
+</html>
